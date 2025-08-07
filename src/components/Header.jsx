@@ -4,12 +4,13 @@ import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../common/SafeIcon';
 
-const { FiMenu, FiX, FiPhone, FiMail, FiMapPin, FiClock, FiSettings, FiZap, FiChevronDown } = FiIcons;
+const { FiMenu, FiX, FiPhone, FiMail, FiMapPin, FiClock, FiSettings, FiZap, FiChevronDown, FiChevronUp, FiTool, FiDollarSign, FiRepeat, FiHome, FiSearch, FiInfo, FiMessageSquare } = FiIcons;
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -36,15 +37,84 @@ const Header = () => {
   ];
 
   const mobileNavigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Inventory', href: '/inventory' },
-    { name: 'Financing', href: '/financing' },
-    { name: 'Service', href: '/service' },
-    { name: 'Trade-In', href: '/trade-in' },
+    { name: 'Home', href: '/', icon: FiHome },
+    { name: 'Inventory', href: '/inventory', icon: FiSearch },
+    {
+      name: 'Services',
+      icon: FiTool,
+      subItems: [
+        { name: 'Financing', href: '/financing', icon: FiDollarSign },
+        { name: 'Service & Parts', href: '/service', icon: FiTool },
+        { name: 'Trade-In', href: '/trade-in', icon: FiRepeat },
+      ],
+    },
     { name: 'AI Tools', href: '/ai-tools', icon: FiZap },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'About', href: '/about', icon: FiInfo },
+    { name: 'Contact', href: '/contact', icon: FiMessageSquare },
   ];
+
+  const renderMobileNav = () => {
+    const handleNavigation = (item) => {
+      if (!item.subItems) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    return mobileNavigation.map((item) => {
+      if (item.subItems) {
+        return (
+          <div key={item.name}>
+            <button
+              onClick={() => setIsServicesOpen(!isServicesOpen)}
+              className="w-full flex justify-between items-center text-gray-700 hover:text-primary-600 font-medium p-2 rounded-lg transition-colors"
+            >
+              <span className="flex items-center">
+                <SafeIcon icon={item.icon} className="w-5 h-5 mr-3" />
+                {item.name}
+              </span>
+              <SafeIcon icon={isServicesOpen ? FiChevronUp : FiChevronDown} className="w-5 h-5" />
+            </button>
+            {isServicesOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="pl-6 mt-2 space-y-2"
+              >
+                {item.subItems.map((subItem) => (
+                  <Link
+                    key={subItem.name}
+                    to={subItem.href}
+                    className={`flex items-center space-x-3 text-gray-600 hover:text-primary-600 p-2 rounded-lg transition-colors ${
+                      location.pathname === subItem.href ? 'text-primary-600 bg-primary-50' : ''
+                    }`}
+                    onClick={() => handleNavigation(subItem)}
+                  >
+                    <SafeIcon icon={subItem.icon} className="w-5 h-5" />
+                    <span>{subItem.name}</span>
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <Link
+          key={item.name}
+          to={item.href}
+          className={`flex items-center text-gray-700 hover:text-primary-600 font-medium p-2 rounded-lg transition-colors ${
+            location.pathname === item.href ? 'text-primary-600 bg-primary-50' : ''
+          }`}
+          onClick={() => handleNavigation(item)}
+        >
+          <SafeIcon icon={item.icon} className="w-5 h-5 mr-3" />
+          {item.name}
+        </Link>
+      );
+    });
+  };
 
   return (
     <>
@@ -184,41 +254,8 @@ const Header = () => {
           >
             <div className="container mx-auto px-4 py-4">
               <nav className="flex flex-col space-y-4">
-                {mobileNavigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`text-gray-700 hover:text-primary-600 font-medium transition-colors ${
-                      location.pathname === item.href ? 'text-primary-600' : ''
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.icon ? (
-                      <span className="flex items-center">
-                        <SafeIcon icon={item.icon} className="w-4 h-4 mr-1" />
-                        {item.name}
-                      </span>
-                    ) : (
-                      item.name
-                    )}
-                  </Link>
-                ))}
+                {renderMobileNav()}
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
-                  <Link
-                    to="/inventory"
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors text-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Browse Cars
-                  </Link>
-                  <Link
-                    to="/contact"
-                    className="border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white px-4 py-2 rounded-lg font-semibold transition-colors text-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Test Drive
-                  </Link>
-
                   {/* Mobile Contact Info */}
                   <div className="pt-4 border-t border-gray-200 space-y-2 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
