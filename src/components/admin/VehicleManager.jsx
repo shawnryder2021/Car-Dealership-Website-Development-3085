@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import * as FiIcons from 'react-icons/fi';
 import SafeIcon from '../../common/SafeIcon';
+import openaiService from '../../services/openaiService';
 
-const { FiPlus, FiEdit, FiTrash2, FiSearch, FiFilter, FiEye } = FiIcons;
+const { FiPlus, FiEdit, FiTrash2, FiSearch, FiFilter, FiEye, FiSparkles } = FiIcons;
 
 const VehicleManager = () => {
   const [vehicles, setVehicles] = useState([]);
@@ -12,6 +13,7 @@ const VehicleManager = () => {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const [vehicleForm, setVehicleForm] = useState({
     make: '',
@@ -163,6 +165,39 @@ const VehicleManager = () => {
 
   const handleFormChange = (field, value) => {
     setVehicleForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenerateDescription = async () => {
+    setIsGenerating(true);
+    try {
+      const vehicleDetails = {
+        year: vehicleForm.year,
+        make: vehicleForm.make,
+        model: vehicleForm.model,
+        condition: vehicleForm.condition,
+        mileage: vehicleForm.mileage,
+        features: vehicleForm.features,
+        exteriorColor: vehicleForm.exteriorColor,
+        interiorColor: vehicleForm.interiorColor,
+        engine: vehicleForm.engine,
+        transmission: vehicleForm.transmission,
+        drivetrain: vehicleForm.drivetrain,
+        combinedMPG: vehicleForm.combinedMPG,
+      };
+
+      const { description, error } = await openaiService.generateVehicleDescription(vehicleDetails);
+
+      if (error) {
+        alert(`Error generating description: ${error}`);
+      } else {
+        handleFormChange('description', description);
+      }
+    } catch (err) {
+      console.error('Failed to generate description:', err);
+      alert('An unexpected error occurred while generating the description.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -398,13 +433,24 @@ const VehicleManager = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateDescription}
+                    disabled={isGenerating}
+                    className="text-sm text-primary-600 hover:text-primary-800 font-semibold flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <SafeIcon icon={FiSparkles} className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                    <span>{isGenerating ? 'Generating...' : 'Generate with AI'}</span>
+                  </button>
+                </div>
                 <textarea
                   value={vehicleForm.description}
                   onChange={(e) => handleFormChange('description', e.target.value)}
                   rows={4}
                   className="form-input"
-                  placeholder="Enter vehicle description..."
+                  placeholder="Enter vehicle description or generate one with AI."
                 />
               </div>
             </div>
