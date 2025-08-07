@@ -8,8 +8,9 @@ import TradeInEstimator from '../components/ai/TradeInEstimator';
 import VehicleMatchmaker from '../components/ai/VehicleMatchmaker';
 import ComparisonTool from '../components/ai/ComparisonTool';
 import FeatureExplainer from '../components/ai/FeatureExplainer';
+import OwnershipCostCalculator from '../components/ai/OwnershipCostCalculator';
 
-const { FiZap, FiTrendingUp, FiCreditCard, FiMessageSquare, FiAward, FiSearch, FiList, FiInfo } = FiIcons;
+const { FiZap, FiTrendingUp, FiCreditCard, FiMessageSquare, FiAward, FiSearch, FiList, FiInfo, FiDollarSign } = FiIcons;
 
 const AiTools = () => {
   const aiFeatures = [
@@ -42,6 +43,11 @@ const AiTools = () => {
       icon: FiMessageSquare,
       title: 'Vehicle Q&A',
       description: 'Ask our AI assistant any questions about specific vehicles in our inventory.',
+    },
+    {
+      icon: FiDollarSign,
+      title: 'Ownership Cost Calculator',
+      description: 'Estimate the total cost of ownership for a vehicle, including fuel, insurance, and maintenance.',
     },
   ];
 
@@ -169,6 +175,21 @@ const AiTools = () => {
           </div>
           <div className="max-w-4xl mx-auto">
             <TradeInEstimator />
+          </div>
+        </div>
+      </section>
+
+      {/* Ownership Cost Calculator */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Calculate Total Ownership Cost</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+             Get a detailed 5-year ownership cost estimate for any vehicle, including depreciation, fuel, insurance, and more.
+            </p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <OwnershipCostCalculator />
           </div>
         </div>
       </section>

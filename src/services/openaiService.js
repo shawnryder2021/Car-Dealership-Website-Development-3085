@@ -389,6 +389,63 @@ Focus on what it does, how it benefits the driver, and why it might be important
       };
     }
   }
+
+  // Get AI-powered ownership cost analysis
+  async getOwnershipCost(details) {
+    try {
+      console.log('Generating ownership cost analysis for:', details);
+      const systemPrompt = `You are an expert automotive cost analyst for Premier Auto Halifax. Your task is to provide a detailed 5-year ownership cost analysis for a given vehicle. The analysis should be broken down into the following components:
+
+1.  **Depreciation**: The estimated loss in value over 5 years.
+2.  **Fuel**: Estimated cost based on mileage, driving style, and location. Assume current average fuel prices for the location.
+3.  **Insurance**: A realistic estimated annual insurance cost based on the vehicle and location.
+4.  **Maintenance**: Estimated routine maintenance costs (oil changes, tire rotations, etc.).
+5.  **Repairs**: Estimated cost for potential common repairs for this type of vehicle.
+
+Provide the output in a structured JSON format. All values should be in Canadian Dollars (CAD). Be realistic and use current market data for Halifax, Nova Scotia, where applicable.`;
+
+      const userPrompt = `Please provide a 5-year ownership cost analysis for the following vehicle:
+- Vehicle: ${details.vehicle}
+- Estimated Annual Mileage: ${details.annualMileage} miles
+- Primary Driving Style: ${details.drivingStyle}
+- Location: ${details.location}
+
+Return the data in the following JSON format:
+{
+  "vehicle": "${details.vehicle}",
+  "totalCost": "CAD $XX,XXX",
+  "depreciation": "CAD $XX,XXX",
+  "fuel": "CAD $X,XXX",
+  "insurance": "CAD $X,XXX",
+  "maintenance": "CAD $X,XXX",
+  "repairs": "CAD $X,XXX"
+}`;
+
+      const response = await this.client.post('/chat/completions', {
+        model: "gpt-4o",
+        messages: [
+          {role: "system", content: systemPrompt},
+          {role: "user", content: userPrompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+        response_format: { type: "json_object" }
+      });
+
+      const costAnalysis = JSON.parse(response.data.choices[0].message.content);
+
+      return {
+        costAnalysis,
+        error: null
+      };
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      return {
+        costAnalysis: null,
+        error: error.response?.data?.error?.message || 'Failed to generate ownership cost analysis'
+      };
+    }
+  }
 }
 
 // Export singleton instance
