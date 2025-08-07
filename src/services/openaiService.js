@@ -446,6 +446,66 @@ Return the data in the following JSON format:
       };
     }
   }
+
+  // Get AI-powered vehicle summary and review analysis
+  async getVehicleSummaryAndReviews(vehicle) {
+    try {
+      console.log('Generating vehicle summary and reviews for:', vehicle);
+      const systemPrompt = `You are an expert automotive journalist for Premier Auto Halifax. Your task is to provide a comprehensive, unbiased summary and review analysis for a given vehicle. To do this, you will first perform a web search for professional and customer reviews for the specified vehicle model and year.
+
+Based on your research, generate the following:
+1.  **Summary**: A concise, easy-to-read summary of the vehicle, highlighting its key characteristics, target audience, and overall market reception.
+2.  **Pros**: A list of 3-5 key strengths commonly mentioned in reviews (e.g., "Smooth ride," "Spacious interior," "Excellent fuel economy").
+3.  **Cons**: A list of 3-5 common weaknesses or complaints mentioned in reviews (e.g., "Underwhelming engine power," "Clunky infotainment system," "Limited cargo space").
+
+Provide the output in a structured JSON format. Be objective and base your analysis on the consensus from the reviews you find.`;
+
+      const userPrompt = `Please generate a summary and review analysis for the following vehicle:
+- Year: ${vehicle.year}
+- Make: ${vehicle.make}
+- Model: ${vehicle.model}
+- Trim: ${vehicle.trim || 'Not specified'}
+
+Please perform a web search for reviews and then provide the analysis in the following JSON format:
+{
+  "summary": "A comprehensive summary of the vehicle...",
+  "pros": [
+    "List of common praises from reviews",
+    "Another pro...",
+    "And another..."
+  ],
+  "cons": [
+    "List of common complaints from reviews",
+    "Another con...",
+    "And another..."
+  ]
+}`;
+
+      const response = await this.client.post('/chat/completions', {
+        model: "gpt-4o", // Or a model that has web search capabilities if available
+        messages: [
+          {role: "system", content: systemPrompt},
+          {role: "user", content: userPrompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+        response_format: { type: "json_object" }
+      });
+
+      const summary = JSON.parse(response.data.choices[0].message.content);
+
+      return {
+        summary,
+        error: null
+      };
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      return {
+        summary: null,
+        error: error.response?.data?.error?.message || 'Failed to generate vehicle summary and reviews'
+      };
+    }
+  }
 }
 
 // Export singleton instance
