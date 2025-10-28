@@ -9,7 +9,7 @@ import VehicleQA from '../components/ai/VehicleQA';
 import FinancingCalculator from '../components/ai/FinancingCalculator';
 import openaiService from '../services/openaiService';
 
-const { FiHeart, FiShare2, FiPhone, FiMail, FiCheckCircle, FiMapPin, FiClock, FiX, FiArrowLeft, FiLoader, FiEdit } = FiIcons;
+const { FiHeart, FiShare2, FiPhone, FiMail, FiCheckCircle, FiMapPin, FiClock, FiX, FiArrowLeft, FiLoader, FiEdit, FiFileText } = FiIcons;
 
 const VehicleDetail = () => {
   const { id } = useParams();
@@ -466,6 +466,13 @@ const VehicleDetail = () => {
                 >
                   Request Information
                 </button>
+                <Link
+                  to={`/vehicle/${id}/summary`}
+                  className="w-full flex items-center justify-center space-x-2 bg-secondary-500 hover:bg-secondary-600 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <SafeIcon icon={FiFileText} className="w-5 h-5" />
+                  <span>AI Summary & Reviews</span>
+                </Link>
                 <div className="grid grid-cols-2 gap-3">
                   <a 
                     href="tel:+19025554567" 

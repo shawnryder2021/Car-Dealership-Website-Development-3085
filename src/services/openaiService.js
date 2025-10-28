@@ -389,6 +389,123 @@ Focus on what it does, how it benefits the driver, and why it might be important
       };
     }
   }
+
+  // Get AI-powered ownership cost analysis
+  async getOwnershipCost(details) {
+    try {
+      console.log('Generating ownership cost analysis for:', details);
+      const systemPrompt = `You are an expert automotive cost analyst for Premier Auto Halifax. Your task is to provide a detailed 5-year ownership cost analysis for a given vehicle. The analysis should be broken down into the following components:
+
+1.  **Depreciation**: The estimated loss in value over 5 years.
+2.  **Fuel**: Estimated cost based on mileage, driving style, and location. Assume current average fuel prices for the location.
+3.  **Insurance**: A realistic estimated annual insurance cost based on the vehicle and location.
+4.  **Maintenance**: Estimated routine maintenance costs (oil changes, tire rotations, etc.).
+5.  **Repairs**: Estimated cost for potential common repairs for this type of vehicle.
+
+Provide the output in a structured JSON format. All values should be in Canadian Dollars (CAD). Be realistic and use current market data for Halifax, Nova Scotia, where applicable.`;
+
+      const userPrompt = `Please provide a 5-year ownership cost analysis for the following vehicle:
+- Vehicle: ${details.vehicle}
+- Estimated Annual Mileage: ${details.annualMileage} miles
+- Primary Driving Style: ${details.drivingStyle}
+- Location: ${details.location}
+
+Return the data in the following JSON format:
+{
+  "vehicle": "${details.vehicle}",
+  "totalCost": "CAD $XX,XXX",
+  "depreciation": "CAD $XX,XXX",
+  "fuel": "CAD $X,XXX",
+  "insurance": "CAD $X,XXX",
+  "maintenance": "CAD $X,XXX",
+  "repairs": "CAD $X,XXX"
+}`;
+
+      const response = await this.client.post('/chat/completions', {
+        model: "gpt-4o",
+        messages: [
+          {role: "system", content: systemPrompt},
+          {role: "user", content: userPrompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+        response_format: { type: "json_object" }
+      });
+
+      const costAnalysis = JSON.parse(response.data.choices[0].message.content);
+
+      return {
+        costAnalysis,
+        error: null
+      };
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      return {
+        costAnalysis: null,
+        error: error.response?.data?.error?.message || 'Failed to generate ownership cost analysis'
+      };
+    }
+  }
+
+  // Get AI-powered vehicle summary and review analysis
+  async getVehicleSummaryAndReviews(vehicle) {
+    try {
+      console.log('Generating vehicle summary and reviews for:', vehicle);
+      const systemPrompt = `You are an expert automotive journalist for Premier Auto Halifax. Your task is to provide a comprehensive, unbiased summary and review analysis for a given vehicle. To do this, you will first perform a web search for professional and customer reviews for the specified vehicle model and year.
+
+Based on your research, generate the following:
+1.  **Summary**: A concise, easy-to-read summary of the vehicle, highlighting its key characteristics, target audience, and overall market reception.
+2.  **Pros**: A list of 3-5 key strengths commonly mentioned in reviews (e.g., "Smooth ride," "Spacious interior," "Excellent fuel economy").
+3.  **Cons**: A list of 3-5 common weaknesses or complaints mentioned in reviews (e.g., "Underwhelming engine power," "Clunky infotainment system," "Limited cargo space").
+
+Provide the output in a structured JSON format. Be objective and base your analysis on the consensus from the reviews you find.`;
+
+      const userPrompt = `Please generate a summary and review analysis for the following vehicle:
+- Year: ${vehicle.year}
+- Make: ${vehicle.make}
+- Model: ${vehicle.model}
+- Trim: ${vehicle.trim || 'Not specified'}
+
+Please perform a web search for reviews and then provide the analysis in the following JSON format:
+{
+  "summary": "A comprehensive summary of the vehicle...",
+  "pros": [
+    "List of common praises from reviews",
+    "Another pro...",
+    "And another..."
+  ],
+  "cons": [
+    "List of common complaints from reviews",
+    "Another con...",
+    "And another..."
+  ]
+}`;
+
+      const response = await this.client.post('/chat/completions', {
+        model: "gpt-4o", // Or a model that has web search capabilities if available
+        messages: [
+          {role: "system", content: systemPrompt},
+          {role: "user", content: userPrompt}
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+        response_format: { type: "json_object" }
+      });
+
+      const summary = JSON.parse(response.data.choices[0].message.content);
+
+      return {
+        summary,
+        error: null
+      };
+    } catch (error) {
+      console.error('OpenAI API Error:', error);
+      return {
+        summary: null,
+        error: error.response?.data?.error?.message || 'Failed to generate vehicle summary and reviews'
+      };
+    }
+  }
 }
 
 // Export singleton instance

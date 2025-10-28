@@ -9,6 +9,7 @@ import ChatBot from './components/ChatBot';
 import Home from './pages/Home';
 import Inventory from './pages/Inventory';
 import VehicleDetail from './pages/VehicleDetail';
+import VehicleSummary from './pages/VehicleSummary';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Financing from './pages/Financing';
@@ -38,6 +39,7 @@ function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/inventory" element={<Inventory />} />
                       <Route path="/vehicle/:id" element={<VehicleDetail />} />
+                      <Route path="/vehicle/:id/summary" element={<VehicleSummary />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/financing" element={<Financing />} />
